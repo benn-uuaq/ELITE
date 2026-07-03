@@ -1,12 +1,12 @@
 # ELITE Robot ROS 2 Humble Controller
 
-본 패키지는 ELITE 로봇의 3대 핵심 통신 포트(Modbus 502, Primary 30001, Dashboard 29999)에 동시 접속하여 실시간 상태 모니터링 및 원격 제어를 수행하는 통합 제어 허브 노드입니다[cite: 1].
+본 패키지는 ELITE 로봇의 3대 핵심 통신 포트(Modbus 502, Primary 30001, Dashboard 29999)에 동시 접속하여 실시간 상태 모니터링 및 원격 제어를 수행하는 통합 제어 허브 노드입니다.
 
 ---
 
 ## 📌 필수 사전 작업 (공통)
 
-로봇 노드가 모드버스 통신을 정상적으로 수행하기 위해 시스템 전역 환경에 아래 라이브러리가 반드시 설치되어 있어야 합니다[cite: 1].
+로봇 노드가 모드버스 통신을 정상적으로 수행하기 위해 시스템 전역 환경에 아래 라이브러리가 반드시 설치되어 있어야 합니다.
 
 ```bash
 sudo python3 -m pip install pyModbusTCP
@@ -93,7 +93,7 @@ ros2 run robot_controller robot_control_node --ros-args -p robot_ip:="192.168.1.
 | `/robot/status/robot_mode` | `Int32` | **로봇 현재 상태 모드** (66번 레지스터)<br>· 5 = IDLE (대기), 7 = RUNNING (동작 중) 등 |
 | `/robot/status/control_method` | `Int32` | **제어 권한 상태** (71번 레지스터)<br>· 1 = 로컬 티치펜던트, 2 = 원격 제어 개방 완료 |
 | `/robot/status/operation_mode` | `Int32` | **동작 모드** (72번 레지스터)<br>· 0 = 자동(Auto), 1 = 수동(Manual) |
-| `/robot/status/alarms` | `String` | **30001 포트 실시간 에러/알람 원인 스트림**[cite: 1]<br>· 충돌 및 세이프티 정지 발생 시 즉시 감지 후 텍스트 발행[cite: 1] |
+| `/robot/status/alarms` | `String` | **30001 포트 실시간 에러/알람 원인 스트림**<br>· 충돌 및 세이프티 정지 발생 시 즉시 감지 후 텍스트 발행 |
 
 *   **실시간 모니터링 터미널 명령어 예시:**
     ```bash
@@ -106,17 +106,17 @@ ros2 run robot_controller robot_control_node --ros-args -p robot_ip:="192.168.1.
 
 ### 2. 원격 제어 및 명령어 전송 파이프라인 (Services)
 
-29999 대시보드 포트를 트리거하는 채널입니다[cite: 1]. 명령 결과를 성공/실패 구조로 응답받습니다[cite: 1].
+29999 대시보드 포트를 트리거하는 채널입니다. 명령 결과를 성공/실패 구조로 응답받습니다.
 
-*   **로봇 제어 박스 전체 시스템 컨디션 상태 조회**[cite: 1]
+*   **로봇 제어 박스 전체 시스템 컨디션 상태 조회**
     ```bash
     ros2 service call /robot/dashboard/status std_srvs/srv/Trigger
     ```
-*   **로봇 하드웨어 브레이크 해제 명령 (Brake Release)**[cite: 1]
+*   **로봇 하드웨어 브레이크 해제 명령 (Brake Release)**
     ```bash
     ros2 service call /robot/dashboard/brake_release std_srvs/srv/Trigger
     ```
-*   **로봇 전원 제어 (ON / OFF)**[cite: 1]
+*   **로봇 전원 제어 (ON / OFF)**
     ```bash
     # 로봇 제어 전원 ON
     ros2 service call /robot/dashboard/power_on std_srvs/srv/Trigger
@@ -124,7 +124,7 @@ ros2 run robot_controller robot_control_node --ros-args -p robot_ip:="192.168.1.
     # 로봇 제어 전원 OFF
     ros2 service call /robot/dashboard/power_off std_srvs/srv/Trigger
     ```
-*   **태스크 프로그램 구동 제어 (Play / Pause / Stop)**[cite: 1]
+*   **태스크 프로그램 구동 제어 (Play / Pause / Stop)**
     ```bash
     # 프로그램 시작 및 재생
     ros2 service call /robot/dashboard/play std_srvs/srv/Trigger
