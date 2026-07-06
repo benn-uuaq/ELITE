@@ -147,11 +147,11 @@ class Robot_30001():
             self.__sock.settimeout(0.5)
             self.__sock.connect((self.ip, self.port2))
             self.__sock.settimeout(10.0) 
-            print(f"Connected to {self.ip} on port {self.port2}")
+            print(f"[DEBUG][Robot Primary] Connected to {self.ip} on port {self.port2}")
             self.__buf = b""
             return self.__sock
         except Exception as e:
-            print(f"Error connecting to {self.ip} on port {self.port2}: {e}")
+            print(f"[ERROR][Robot Primary] Connecting to {self.ip} on port {self.port2}: {e}")
             self.__sock = None 
             return None 
         
@@ -159,6 +159,7 @@ class Robot_30001():
         if self.__sock:
             self.__sock.close()
             self.__sock = None
+            print("[Robot Primary] Disconnect")
 
     def get_data(self):
         return self.__recv()
@@ -234,13 +235,13 @@ class Robot_29999():
             self.sock.settimeout(0.5)
             self.sock.connect((self.ip, self.port1))
             self.sock.settimeout(10.0)
-            print(f"Connected to {self.ip} on port {self.port1}")
+            print(f"[DEBUG][Robot Dashboard] Connected to {self.ip} on port {self.port1}")
             try:
                 self.sock.recv(4096) 
             except Exception: pass
             return self.sock
         except Exception as e:
-            print(f"Error connecting to {self.ip} on port {self.port1}: {e}")
+            print(f"[ERROR][Robot Dashboard] Connecting to {self.ip} on port {self.port1}: {e}")
             return None
 
     def send_command_29999(self, command):
@@ -252,13 +253,14 @@ class Robot_29999():
             response = self.sock.recv(4096).decode("utf-8").strip()
             return response
         except Exception as e:
-            print(f"Error sending command: {e}")
+            print(f"[ERROR] Sending command: {e}")
             return None
 
     def disconnect_29999(self):
         if self.sock:
             self.sock.close()
             self.sock = None
+            print("[Robot Dashboard] Disconnect")
 
     def robot_mode(self): return self.send_command_29999("robotMode")
     def robot_status(self): return self.send_command_29999("status")
@@ -277,24 +279,25 @@ class Robot_modbus():
         self.is_running = False
 
     def connect(self):
-        # ★ ID: 255 명시 고정 적용
         self.client = ModbusClient(host=self.host, port=self.port, unit_id=255, timeout=1.0)
-        print(f"[PC Modbus Client] 로봇 서버({self.host}:{self.port}, ID:255) 연결 시도 중...")
+        
         if self.client.is_open:
             self.client.close()
+        
         is_open = self.client.open()
         if is_open:
-            print("[PC Modbus Client] 로봇 서버 접속 성공!")
             self.is_running = True
+            print(f"[DEBUG][Robot Modbus] Connected to {self.host} on port {self.port}")
             return True
-        print("[PC Modbus Client] 로봇 서버 접속 실패")
-        return False
+        else:
+            print(f"[ERROR][Robot Modbus] Connecting to {self.host} on port {self.port}: timed out")
+            return False
 
     def disconnect(self):
         if self.client:
             self.client.close()
         self.is_running = False
-        print("[PC Modbus Client] 접속 종료")
+        print("[Robot Modbus] Disconnect")
 
     def set_register(self, address, value):
         try:

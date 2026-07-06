@@ -19,8 +19,8 @@ class RobotControlNode(Node):
         self.alarm_mgr = AlarmManager()
         
         if not self.connect_all_servers(robot_ip):
-            self.print_critical_error_alarm(robot_ip)
-            raise SystemExit("[ERROR]로봇 연결 해제로 인한 가동 불가")
+            self.get_logger().error("[ERROR] 로봇 연결 실패")
+            raise SystemExit()
         
         # self.connect_all_servers()
 
@@ -54,13 +54,6 @@ class RobotControlNode(Node):
         except Exception as e:
             self.get_logger().error(f"[ERROR] 소켓 연결 중 예외 발생: {e}")
             return False
-        
-    def print_critical_error_alarm(self, robot_ip):
-        self.get_logger().error(f"[ERROR] 로봇 연결 실패: 대상 IP [{robot_ip}] 로부터 응답이 없습니다.")
-        self.get_logger().error("[ERROR] 조치 가이드라인:")
-        self.get_logger().error("   1. 로봇 컨트롤러 전원 상태 확인")
-        self.get_logger().error("   2. PC와 제어기 간 LAN 케이블 결선 및 허브 링크 불빛 확인")
-        self.get_logger().error("   3. 윈도우 호스트 이더넷 IP 대역 확인 (192.168.227.X)")
 
     def update_robot_loop(self):
         # 주소 66, 71, 72 정밀 수집 및 파싱
@@ -115,14 +108,12 @@ class RobotControlNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     
-    # ------------------ [try-except 구조 내부에 SystemExit 에러 처리 추가] ------------------
     try:
         node = RobotControlNode()
         rclpy.spin(node)
-    except SystemExit as e:
-        print(f"[ERROR] {e}")
+    except SystemExit: 
+        pass
     except KeyboardInterrupt: pass
-    # -------------------------------------------------------------------------------------
     finally:
         if 'node' in locals():
             node.destroy_node()
